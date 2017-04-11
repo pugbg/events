@@ -1,0 +1,48 @@
+body { 
+		font-family: Arial,Sans-Serif;
+		font-size: 14px;
+		color: #000000;
+	 }
+
+.label {
+    font-size: 1.1em;
+    font-weight: bold;
+    background: #f0f0f0;
+    width: 100%;
+    display: block !important;
+    padding: .3em .6em;
+    white-space: nowrap;
+    box-sizing: border-box;
+}
+
+.cell {
+    padding: .3em 0.6em;
+    line-height: 1.6em;
+    display: block !important;
+    border: 0 !important;
+	white-space: nowrap;
+}
+
+.error {
+    background: #efbdbd;
+}
+
+.ok-text {
+    color: #31bf44;
+}
+
+.not-ok-text {
+	color: #f45041;
+}
+
+.normal-text {
+	color: #000000;
+}
+
+.text-blue {
+	color: #4286f4 !important;
+}
+
+.warning-text {
+	color: #dd8125;
+}
