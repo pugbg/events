@@ -1,43 +1,52 @@
+#ModuleVersion = 1.0.0.2
 function Start-NewProcess
 {
 
     [CmdletBinding()]
     param
     (
-		#FilePath
-		[Parameter(Mandatory=$true)]
         $FilePath,
 
-		#Arguments
-		[Parameter(Mandatory=$false)]
-        $Arguments,
-
-		#PassThru
-		[Parameter(Mandatory=$false)]
-		[switch]$PassThru = $false
+        $Arguments
     )
 
     process
     {
-		if ($PSBoundParameters.ContainsKey('Arguments'))
+
+        $ProcessStartInfo = [System.Diagnostics.ProcessStartInfo]::new($FilePath,$Arguments)
+        $ProcessStartInfo.UseShellExecute = $false
+		$ProcessStartInfo.RedirectStandardOutput = $true
+		$ProcessStartInfo.RedirectStandardError = $true
+        $Process = [System.Diagnostics.Process]::Start($ProcessStartInfo)
+
+		#Wait Process to complete
+		while (-not $Process.HasExited)
 		{
-			$ProcessStartInfo = [System.Diagnostics.ProcessStartInfo]::new($FilePath,$Arguments)
+			Start-Sleep -Milliseconds 346
+		}
+
+
+
+		#Check exitcode
+		if ($Process.exitcode -ne 0)
+		{
+			#Return errorcode + errormessage
+			$errorMsg = "Failed with exitcode $($Process.ExitCode)"
+			$ProcessOutput_Error = $Process.StandardError.ReadToEnd()
+			if ($ProcessOutput_Error)
+			{
+				$errorMsg+=". Details: $ProcessOutput_Error"
+			}
+
+			Write-Error -Message $errorMsg -ErrorAction Stop
 		}
 		else
 		{
-			$ProcessStartInfo = [System.Diagnostics.ProcessStartInfo]::new($FilePath)
+			#Return output
+			$Process.StandardOutput.ReadToEnd()
 		}
         
-        $ProcessStartInfo.UseShellExecute = $false
-		$ProcessStartInfo.CreateNoWindow = $true
-        $Process = [System.Diagnostics.Process]::Start($ProcessStartInfo)
-        
-		if ($PassThru.IsPresent)
-		{
-			$Process
-		}
-
-        $Process.Dispose()
+		$Process.Dispose()
     }
 
 }
