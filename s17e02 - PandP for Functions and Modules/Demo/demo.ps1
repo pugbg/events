@@ -65,6 +65,7 @@ $BinariesPath = ''
 
     # 10:00 - On the next day, Konstantin saw what I`ve did, and wanted to use my module, so I`ve decided to:
     # - Implement validation of the input parameters
+	# - Implement generic error handling
 	# - Add Verbose logging so he can see what it is doing if he wants.
 	# - Rename the module so it is easier to understand the purpose of the commands inside it
     Import-Module "$ModulesPath\SystemHelper" -RequiredVersion 1.0.0.4 -PassThru -Force 
