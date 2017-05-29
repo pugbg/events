@@ -1,15 +1,13 @@
-#Why we need universal helper function for process execution to rule them all
-# - Executables that do not work interactively
-diskpart
-# - Argument parsing
-# - Output parsing
+## Why we need universal helper function for process execution to rule them all
+#   - Argument parsing
+#   - Output parsing
 
 #region Demo Configuration
 
 $ModulesPath = 'C:\Users\givanoad08\Source\Repos\events\s17e02 - PandP for Functions and Modules\Demo'
 # $ModulesPath = 'D:\GitHub\PUGbg\Events\s17e02 - PandP for Functions and Modules\Demo'
 $ScriptsPath = ''
-$BinariesPath = ''
+$BinariesPath = "$ModulesPath\SoftwareBinaries"
 
 #endregion
 
@@ -62,8 +60,9 @@ $BinariesPath = ''
 	### Point for us: ParameterSet usage for multiple scenarios + Parameter Identification (switch and no switch)
 
     Import-Module "$ModulesPath\SomeModule" -RequiredVersion 1.0.0.4 -PassThru -Force
-    Start-NewProcess -FilePath "$BinariesPath\Chrome.exe" -Arguments ''
-    Start-NewProcess -FilePath "dism" -Arguments '' -WaitTimeout 30
+    Start-NewProcess -FilePath "$BinariesPath\ChromeStandaloneSetup64.exe" -Arguments '/silent /install' -WaitTimeout 3600
+    Start-NewProcess -FilePath "msiexec.exe" -Arguments "/i $BinariesPath\7z920-x64.msi ALLUSERS=1 /qb! /norestart TRANSFORMS=$BinariesPath\assoc.mst" -WaitTimeout 3600
+
 
     # Outcome
     # - Everything works!
@@ -80,11 +79,13 @@ $BinariesPath = ''
 
 	### Point for us: InputValidation + Generic Error handling + Streams
 
-    Import-Module "$ModulesPath\SystemHelper" -RequiredVersion 1.0.0.5 -PassThru -Force 
-    Start-NewProcess -FilePath "$BinariesPath\Chrome2.exe" -Arguments '' -Wait 9999
-	Start-NewProcess -FilePath "$BinariesPath\Chrome2.exe" -Arguments '' -Wait 60
-	Start-NewProcess -FilePath "$BinariesPath\Chrome.exe" -Arguments '' -Wait 60
-	Start-NewProcess -FilePath "$BinariesPath\Chrome.exe" -Arguments '' -Wait 60 -Verbose
+    Import-Module "$ModulesPath\SystemHelper" -RequiredVersion 1.0.0.5 -PassThru -Force
+
+    Start-NewProcess -FilePath "$BinariesPath\ChromeStandaloneSetup64.exe" -Arguments '/silent /install' -WaitTimeout 9999
+    Start-NewProcess -FilePath "$BinariesPath\ChromeStandaloneSetup64.exe" -Arguments '/silent /install' -WaitTimeout 360
+
+    Start-NewProcess -FilePath "msiexec.exe" -Arguments "/i $BinariesPath\7z920-x64.msi ALLUSERS=1 /qb! /norestart TRANSFORMS=$BinariesPath\assoc.mst" -WaitTimeout 120 -Verbose
+
 
     # Outcome
     # - I`ve testad and gave the module to Konstantin

@@ -165,7 +165,7 @@ function Start-NewProcess
 		}
 		catch
 		{
-			Write-Error -Exception $_ -Message "$_" -Category NotSpecified -ErrorId 0 -TargetObject $MyInvocation.MyCommand.Name
+			Write-Error -Exception ($_.Exception) -Message "$_" -Category NotSpecified -ErrorId 0 -TargetObject $MyInvocation.MyCommand.Name
 		}
 		finally
 		{
