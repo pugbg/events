@@ -4,7 +4,7 @@
    > WHAT'S NEW SINCE 1.0.0.3
 	- [New] Support for both Synchronous and Asynchronous execution (using ParameterSets)
 	- [Improved] The Wait loop now supports WaitTimeout
-
+	- [Breaking Change] Output will not be returned by default
 #>
 function Start-NewProcess
 {

@@ -51,7 +51,7 @@ $BinariesPath = "$ModulesPath\SoftwareBinaries"
 
 #region Day 21
 
-    # 17:00 - New corporate policy arrived. It uninstalls Chrome and resets my html file associations to use IE.
+    # 17:00 - New corporate policy arrived. It uninstalls Chrome
     #         I decided to engineer-around it.
 
     # 17:59 - After short brainstorming I figured what I need:
@@ -60,9 +60,11 @@ $BinariesPath = "$ModulesPath\SoftwareBinaries"
 	### Point for us: ParameterSet usage for multiple scenarios + Parameter Identification (switch and no switch)
 
     Import-Module "$ModulesPath\SomeModule" -RequiredVersion 1.0.0.4 -PassThru -Force
+    Start-NewProcess -FilePath C:\Windows\System32\ping.exe -Arguments '127.0.0.1'
+    Start-NewProcess -FilePath C:\Windows\System32\ping.exe -Arguments '127.0.0.1' -PassThru
+    Start-NewProcess -FilePath C:\Windows\System32\ping.exe -Arguments '127.0.0.1' -ReturnResult
     Start-NewProcess -FilePath "$BinariesPath\ChromeStandaloneSetup64.exe" -Arguments '/silent /install' -WaitTimeout 3600
-    Start-NewProcess -FilePath "msiexec.exe" -Arguments "/i $BinariesPath\7z920-x64.msi ALLUSERS=1 /qb! /norestart TRANSFORMS=$BinariesPath\assoc.mst" -WaitTimeout 3600
-
+    Start-NewProcess -FilePath "msiexec.exe" -Arguments "/i `"$BinariesPath\7z920-x64.msi`" ALLUSERS=1 /qb! /norestart TRANSFORMS=`"$BinariesPath\assoc.mst`"" -WaitTimeout 3600
 
     # Outcome
     # - Everything works!
@@ -80,12 +82,10 @@ $BinariesPath = "$ModulesPath\SoftwareBinaries"
 	### Point for us: InputValidation + Generic Error handling + Streams
 
     Import-Module "$ModulesPath\SystemHelper" -RequiredVersion 1.0.0.5 -PassThru -Force
-
     Start-NewProcess -FilePath "$BinariesPath\ChromeStandaloneSetup64.exe" -Arguments '/silent /install' -WaitTimeout 9999
+    Start-NewProcess -FilePath "$BinariesPath\ChromeStandaloneSetup65.exe" -Arguments '/silent /install' -WaitTimeout 9999
     Start-NewProcess -FilePath "$BinariesPath\ChromeStandaloneSetup64.exe" -Arguments '/silent /install' -WaitTimeout 360
-
     Start-NewProcess -FilePath "msiexec.exe" -Arguments "/i $BinariesPath\7z920-x64.msi ALLUSERS=1 /qb! /norestart TRANSFORMS=$BinariesPath\assoc.mst" -WaitTimeout 120 -Verbose
-
 
     # Outcome
     # - I`ve testad and gave the module to Konstantin
@@ -96,15 +96,17 @@ $BinariesPath = "$ModulesPath\SoftwareBinaries"
 
 	### Point for us: Module Interdependency + ...
 
-    # 10:00 - On the next day, Konstantin came with the proposal to make a universal script 
+    # 10:00 - On the next day, a collegue came with the proposal to make a universal script 
 	#         to configure the computer as we want it to be. We`ve dicussed it and 
 	#         came with the conclusion that:
-	# - We should make SoftwareHelper module that is responsible for each software installation and detection method
+	# - We should make SoftwareHelper module that is responsible for software detection and installation
 	# - Should support being rerun several times
+    Import-Module "$ModulesPath\SystemHelper" -RequiredVersion 1.0.0.5 -PassThru -Force
 	Import-Module "$ModulesPath\SoftwareHelper" -RequiredVersion 1.0.0.1 -PassThru -Force
-	psedit "$ScriptsPath\configure_mypc.ps1"
-    & "$ScriptsPath\configure_mypc.ps1" -Verbose
-	& "$ScriptsPath\configure_mypc.ps1" -Skip 'ChromeInstallation' -Verbose
+	psedit "$ModulesPath\configure_mypc.ps1"
+    & "$ModulesPath\configure_mypc.ps1" -BinariesPath $BinariesPath -Verbose
+    . "$ModulesPath\configure_mypc.ps1" -BinariesPath $BinariesPath -Verbose
+	. "$ModulesPath\configure_mypc.ps1" -BinariesPath $BinariesPath -Skip 'ChromeInstallation' -Verbose
 
 #endregion
 
@@ -113,16 +115,19 @@ $BinariesPath = "$ModulesPath\SoftwareBinaries"
 	### Point for us: OutputType + Custom Formatting
 
     # 10:00 - We want the function to return details about the software installation state
+    Import-Module "$ModulesPath\SystemHelper" -RequiredVersion 1.0.0.5 -PassThru -Force
     Import-Module "$ModulesPath\SoftwareHelper" -RequiredVersion 1.0.0.2 -PassThru -Force
-	$Chrome = Install-Chrome -BinPath '' -PassThru
+	Install-Chrome -FilePath "$BinariesPath\ChromeStandaloneSetup64.exe" -PassThru
+    Install-Chrome -FilePath "$BinariesPath\ChromeStandaloneSetup64.exe" -PassThru | Where-Object {$_.Status -eq 'Failed'}
 	# Outcome
 	# - Crappy formatting
 	# - Intellisense does not recognise the output
 
 	# 14:00 - Lunch is over. Lets improve the function output
+    Import-Module "$ModulesPath\SystemHelper" -RequiredVersion 1.0.0.5 -PassThru -Force
     Import-Module "$ModulesPath\SoftwareHelper" -RequiredVersion 1.0.0.3 -PassThru -Force
-	Install-Chrome -BinPath '' -PassThru
-	Install-Chrome -BinPath '' -PassThru | Where-Object {$_.Status -eq 'Failed'}
+	Install-Chrome -FilePath "$BinariesPath\ChromeStandaloneSetup64.exe" -PassThru
+	Install-Chrome -FilePath "$BinariesPath\ChromeStandaloneSetup64.exe" -PassThru | Where-Object {$_.Status -eq 'AlreadyInstalled'}
 		
 #endregion
 
@@ -131,33 +136,44 @@ $BinariesPath = "$ModulesPath\SoftwareBinaries"
 	### Point for us: Streaming the result thru the Pipeline
 
 	# 10:00 - I want to check who is using Chrome both on my computer and remote computers
-	Import-Module "$ModulesPath\SoftwareHelper" -RequiredVersion 1.0.0.4 -PassThru -Force
-	Get-Software -Name *Chrome* -ErrorAction Stop
-	Get-Software -Name *Chrome* -ComputerName 'localhost' -ErrorAction Stop
-	Get-Software -Name *Chrome* -ErrorAction Stop | select -First 1
-	Get-Software -Name *Chrome* -ErrorAction Stop | Where-Object {$_.User -eq 'Administrator'}
+    Import-Module "$ModulesPath\SystemHelper" -RequiredVersion 1.0.0.5 -PassThru -Force
+	Import-Module "$ModulesPath\SoftwareHelper" -RequiredVersion 1.0.0.4 -PassThru -OutVariable mod -Force
+    $null = Set-PSBreakpoint -Script $mod.Path -Line 191
+	Get-SoftwareUsage -Executable *Chrome.exe -StartTime (get-date).AddHours(-5) | ft
+	Get-SoftwareUsage -Executable *Chrome.exe -StartTime (get-date).AddHours(-5) | select -First 1
+	Get-SoftwareUsage -Executable *Chrome.exe -StartTime (get-date).AddHours(-5) | Where-Object {$_.User -eq 'Administrator'}
+    Get-SoftwareUsage -Executable *Chrome.exe -StartTime (get-date).AddHours(-5) -ComputerName 'localhost'
 	# Outcome
 	# - The overall command performance is bad, because it is waiting to collect all date before returning it.
 
 	# 14:00 - I`ve decided to improve the performance
-	Import-Module "$ModulesPath\SoftwareHelper" -RequiredVersion 1.0.0.5 -PassThru -Force
-	Get-Software -Name *Chrome* -ErrorAction Stop
-	Get-Software -Name *Chrome* -ErrorAction Stop | select -First 1
-	Get-Software -Name *Chrome* -ErrorAction Stop | Where-Object {$_.User -eq 'Administrator'}
+    Import-Module "$ModulesPath\SystemHelper" -RequiredVersion 1.0.0.5 -PassThru -Force
+	Import-Module "$ModulesPath\SoftwareHelper" -RequiredVersion 1.0.0.5 -PassThru -OutVariable mod -Force
+    $null = Set-PSBreakpoint -Script $mod.Path -Line 191
+	Get-SoftwareUsage -Executable *Chrome.exe -StartTime (get-date).AddHours(-5) | ft
+	Get-SoftwareUsage -Executable *Chrome.exe -StartTime (get-date).AddHours(-5) | select -First 1
+	Get-SoftwareUsage -Executable *Chrome.exe -StartTime (get-date).AddHours(-5) | Where-Object {$_.User -eq 'Administrator'}
 
 	# 17:00 - I`ve decided to improve the performance even more by:
 	# - Making the command stream the result as it is retrieved from the provider
-	Import-Module "$ModulesPath\SoftwareHelper" -RequiredVersion 1.0.0.6 -PassThru -Force
-	Get-Software -Name *Chrome* -ErrorAction Stop
-	Get-Software -Name *Chrome* -ErrorAction Stop | select -First 1
-	Get-Software -Name *Chrome* -ErrorAction Stop | Where-Object {$_.User -eq 'Administrator'}
-
+    Import-Module "$ModulesPath\SystemHelper" -RequiredVersion 1.0.0.5 -PassThru -Force
+	Import-Module "$ModulesPath\SoftwareHelper" -RequiredVersion 1.0.0.6 -PassThru -OutVariable mod -Force
+    $null = Set-PSBreakpoint -Script $mod.Path -Line 191
+	Get-SoftwareUsage -Executable *Chrome.exe -StartTime (get-date).AddHours(-5)
+	Get-SoftwareUsage -Executable *Chrome.exe -StartTime (get-date).AddHours(-5) | select -First 1
+	Get-SoftwareUsage -Executable *Chrome.exe -StartTime (get-date).AddHours(-5) | Where-Object {$_.User -eq 'Administrator'}
 
 
 #endregion
 
 #region Day 150
 
-	#Q&A
+	# 20:01 - It`s time for Puppy. Why is it now streaming?
+    Import-Module "$ModulesPath\SystemHelper" -RequiredVersion 1.0.0.5 -PassThru -Force
+	Import-Module "$ModulesPath\SoftwareHelper" -RequiredVersion 1.0.0.7 -PassThru -OutVariable mod -Force
+    $null = Set-PSBreakpoint -Script $mod.Path -Line 191
+	Get-SoftwareUsage -Executable *Chrome.exe -StartTime (get-date).AddHours(-5)
+	Get-SoftwareUsage -Executable *Chrome.exe -StartTime (get-date).AddHours(-5) | select -First 1
+	Get-SoftwareUsage -Executable *Chrome.exe -StartTime (get-date).AddHours(-5) | Where-Object {$_.User -eq 'Administrator'}
 
 #endregion

@@ -121,6 +121,10 @@ function Install-7Zip
 		[Parameter(Mandatory=$true)]
         [System.IO.FileInfo]$FilePath,
 
+		#TransformFilePath
+		[Parameter(Mandatory=$true)]
+        [System.IO.FileInfo]$TransformFilePath,
+
 		#PassThru
 		[Parameter(Mandatory=$true)]
         [switch]$PassThru
@@ -130,33 +134,33 @@ function Install-7Zip
     {
 		try
 		{
-			Write-Verbose '7Zip Installation starting'
+			Write-Verbose '7-Zip Installation starting'
 
 			$Result = [pscustomobject]@{
-				Name='Chrome'
+				Name='7-Zip'
 				Executable=$FilePath
 				TimeStamp=(Get-Date)
 				Status='Unknown'
 			}
 
-			$ChromeInstalled = Get-Software -Name '*notepad*'
-			if ($ChromeInstalled)
+			$7ZipInstalled = Get-Software -Name '*7-zip*'
+			if ($7ZipInstalled)
 			{
 				$Result.Status = 'AlreadyInstalled'
-				Write-Verbose '7Zip Installation skipped, already installed'
+				Write-Verbose '7-Zip Installation skipped, already installed'
 			}
 			else
 			{
-				Start-NewProcess -FilePath '' -ReturnResult -ErrorAction Stop
+				Start-NewProcess -FilePath "msiexec.exe" -Arguments "/i `"$FilePath`" ALLUSERS=1 /qb! /norestart TRANSFORMS=`"$TransformFilePath`"" -WaitTimeout 3600
 				$Result.Status = 'Installed'
 			}
 
-			Write-Verbose '7Zip Installation completed'
+			Write-Verbose '7-Zip Installation completed'
 		}
 		catch
 		{
 			$Result.Status = 'Failed'
-			Write-Error 'NotePadPP Installation started' -ErrorAction Stop
+			Write-Error '7-Zip Installation started' -ErrorAction Stop
 		}
 		finally
 		{

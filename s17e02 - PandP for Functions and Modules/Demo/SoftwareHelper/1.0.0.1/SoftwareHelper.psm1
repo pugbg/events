@@ -78,7 +78,7 @@ function Install-Chrome
 			}
 			else
 			{
-				Start-NewProcess -FilePath $FilePath.FullName -ReturnResult -ErrorAction Stop
+				Start-NewProcess -FilePath $FilePath.FullName -Arguments '/silent /install' -WaitTimeout 3600
 			}
 
 			Write-Verbose 'Chrome Installation completed'
@@ -98,30 +98,34 @@ function Install-7Zip
     (
 		#FilePath
 		[Parameter(Mandatory=$true)]
-        [System.IO.FileInfo]$FilePath
+        [System.IO.FileInfo]$FilePath,
+
+		#TransformFilePath
+		[Parameter(Mandatory=$true)]
+        [System.IO.FileInfo]$TransformFilePath
     )
 
     process
     {
 		try
 		{
-			Write-Verbose '7Zip Installation starting'
+			Write-Verbose '7-Zip Installation starting'
 
-			$ChromeInstalled = Get-Software -Name '*7zip*'
-			if ($ChromeInstalled)
+			$7ZipInstalled = Get-Software -Name '*7-zip*'
+			if ($7ZipInstalled)
 			{
-				Write-Verbose '7Zip Installation skipped, already installed'
+				Write-Verbose '7-Zip Installation skipped, already installed'
 			}
 			else
 			{
-				Start-NewProcess -FilePath $FilePath.FullName -ReturnResult -ErrorAction Stop
+				Start-NewProcess -FilePath "msiexec.exe" -Arguments "/i `"$FilePath`" ALLUSERS=1 /qb! /norestart TRANSFORMS=`"$TransformFilePath`"" -WaitTimeout 3600
 			}
 
-			Write-Verbose '7Zip Installation completed'
+			Write-Verbose '7-Zip Installation completed'
 		}
 		catch
 		{
-			Write-Error 'NotePadPP Installation started' -ErrorAction Stop
+			Write-Error '7-Zip Installation started' -ErrorAction Stop
 		}
     }
 }

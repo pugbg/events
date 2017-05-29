@@ -22,6 +22,7 @@ function Start-NewProcess
 		## Initializing the new process StartInfo object
         $ProcessStartInfo = [System.Diagnostics.ProcessStartInfo]::new($FilePath,$Arguments)
         $ProcessStartInfo.UseShellExecute = $false
+		$ProcessStartInfo.CreateNoWindow = $true
 		$ProcessStartInfo.RedirectStandardOutput = $true
 		$ProcessStartInfo.RedirectStandardError = $true
 

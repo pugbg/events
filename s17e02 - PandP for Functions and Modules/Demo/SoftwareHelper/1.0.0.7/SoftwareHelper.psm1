@@ -1,4 +1,4 @@
-#ModuleVersion = 1.0.0.5
+#ModuleVersion = 1.0.0.7
 #region Private Functions
 
 function Get-Software
@@ -169,6 +169,7 @@ function Install-7Zip
 function Get-SoftwareUsage
 {
     [CmdletBinding()]
+	[OutputType([SoftwareAuditEntry])]
     param
     (
         #Executable
@@ -191,6 +192,16 @@ function Get-SoftwareUsage
 		{
 			Write-Verbose "Retrieve Events starting"
 
+			#Prepare FilterScript
+			if ($PSBoundParameters.ContainsKey('Executable'))
+			{
+				$FilterScript = {$_.Properties[5].Value -ilike $Executable} 
+			}
+			else
+			{
+				$FilterScript = {$true}
+			}
+
 			$GetWinEvent_Params = @{
 				FilterHashtable=@{Logname='Security';Id=4688}
 			}
@@ -202,7 +213,13 @@ function Get-SoftwareUsage
 			{
 				$GetWinEvent_Params['FilterHashtable'].Add('StartTime',$StartTime)
 			}
-			$AllEvents = Get-WinEvent @GetWinEvent_Params -ErrorAction Stop			
+			Get-WinEvent @GetWinEvent_Params | Where-Object -FilterScript $FilterScript | ForEach-Object {
+				$Result = [SoftwareAuditEntry]::new()
+				$Result.Executable = $_.Properties[5].Value
+				$Result.TimeStamp = $_.TimeCreated
+				$Result.User=$_.Properties[1].Value
+				$Result
+			}
       
 			Write-Verbose "Retrieve Events completed"
 		}
@@ -210,36 +227,6 @@ function Get-SoftwareUsage
 		{
 			Write-Error "Retrieve Events failed. Details: $_" -ErrorAction 'Stop'
 		}
-
-		#Filter Events
-		if ($PSBoundParameters.ContainsKey('Executable'))
-		{
-			try
-			{
-				Write-Verbose "Filter Events starting"
-					
-				$AllEvents = $AllEvents | Where-Object -FilterScript {$_.Properties[5].Value -ilike $Executable}
-      
-				Write-Verbose "Filter Events completed"
-			}
-			catch
-			{
-				Write-Error "Filter Events failed. Details: $_" -ErrorAction 'Stop'
-			}
-		}
-
-		#Return Result
-		$Result = New-Object -TypeName system.collections.Arraylist
-		foreach ($item in $AllEvents)
-		{
-			$ItemResult = [pscustomobject]@{
-				TimeStamp=$item.TimeCreated
-				Software=$item.Properties[5].Value
-				User=$item.Properties[1].Value
-			}
-			$null = $Result.Add($ItemResult)
-		}
-		$Result
     }
 }
 
@@ -252,6 +239,13 @@ class SoftwareEntity
 	[string]$Name
 	[Datetime]$TimeStamp
 	[string]$Status
+}
+
+class SoftwareAuditEntry
+{
+	[Datetime]$TimeStamp
+	[string]$Executable
+	[string]$User
 }
 
 #endregion

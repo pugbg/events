@@ -1,4 +1,4 @@
-#ModuleVersion = 1.0.0.5
+#ModuleVersion = 1.0.0.6
 #region Private Functions
 
 function Get-Software
@@ -77,6 +77,10 @@ function Install-Chrome
 			Write-Verbose 'Chrome Installation starting'
 
 			$Result = [SoftwareEntity]::new()
+			$Result.Name='Chrome'
+			$Result.Executable=$FilePath
+			$Result.TimeStamp=(Get-Date)
+			$Result.Status='Unknown'
 
 			$ChromeInstalled = Get-Software -Name '*Chrome*'
 			if ($ChromeInstalled)
@@ -115,6 +119,10 @@ function Install-7Zip
 		[Parameter(Mandatory=$true)]
         [System.IO.FileInfo]$FilePath,
 
+		#TransformFilePath
+		[Parameter(Mandatory=$true)]
+        [System.IO.FileInfo]$TransformFilePath,
+
 		#PassThru
 		[Parameter(Mandatory=$true)]
         [switch]$PassThru
@@ -124,28 +132,32 @@ function Install-7Zip
     {
 		try
 		{
-			Write-Verbose '7Zip Installation starting'
+			Write-Verbose '7-Zip Installation starting'
 
 			$Result = [SoftwareEntity]::new()
+			$Result.Name='7-Zip'
+			$Result.Executable=$FilePath
+			$Result.TimeStamp=(Get-Date)
+			$Result.Status='Unknown'
 
-			$ChromeInstalled = Get-Software -Name '*notepad*'
-			if ($ChromeInstalled)
+			$7ZipInstalled = Get-Software -Name '*7-zip*'
+			if ($7ZipInstalled)
 			{
 				$Result.Status = 'AlreadyInstalled'
-				Write-Verbose '7Zip Installation skipped, already installed'
+				Write-Verbose '7-Zip Installation skipped, already installed'
 			}
 			else
 			{
-				Start-NewProcess -FilePath $FilePath.FullName -ReturnResult -ErrorAction Stop
+				Start-NewProcess -FilePath "msiexec.exe" -Arguments "/i `"$FilePath`" ALLUSERS=1 /qb! /norestart TRANSFORMS=`"$TransformFilePath`"" -WaitTimeout 3600
 				$Result.Status = 'Installed'
 			}
 
-			Write-Verbose '7Zip Installation completed'
+			Write-Verbose '7-Zip Installation completed'
 		}
 		catch
 		{
 			$Result.Status = 'Failed'
-			Write-Error 'NotePadPP Installation started' -ErrorAction Stop
+			Write-Error '7-Zip Installation started' -ErrorAction Stop
 		}
 		finally
 		{
@@ -162,6 +174,10 @@ function Get-SoftwareUsage
         #Executable
         [Parameter(Mandatory=$false,ParameterSetName='NoRemoting_Default')]
         [string]$Executable,
+
+        #StartTime
+        [Parameter(Mandatory=$false,ParameterSetName='NoRemoting_Default')]
+        [datetime]$StartTime,
 
         #ComputerName
         [Parameter(Mandatory=$false,ParameterSetName='NoRemoting_Default')]
@@ -186,18 +202,24 @@ function Get-SoftwareUsage
 			}
 
 			$GetWinEvent_Params = @{
-				FilterHashtable=@{Logname='System';Id=4688}
+				FilterHashtable=@{Logname='Security';Id=4688}
 			}
 			if ($PSBoundParameters.ContainsKey('ComputerName'))
 			{
 				$GetWinEvent_Params.Add('ComputerName',$ComputerName)
 			}
-			$AllEvents = Get-WinEvent @GetWinEvent_Params -ErrorAction Stop	| Where-Object -FilterScript $FilterScript | foreach {
+			if ($PSBoundParameters.ContainsKey('StartTime'))
+			{
+				$GetWinEvent_Params['FilterHashtable'].Add('StartTime',$StartTime)
+			}
+			Get-WinEvent @GetWinEvent_Params | Where-Object -FilterScript $FilterScript | ForEach-Object {
+
 				[pscustomobject]@{
-					TimeStamp=$_.TimeCreated
-					Software=$_.Properties[5].Value
+					Executable = $_.Properties[5].Value
+					TimeStamp = $_.TimeCreated
 					User=$_.Properties[1].Value
 				}
+
 			}
       
 			Write-Verbose "Retrieve Events completed"
