@@ -207,7 +207,7 @@
 
 #region Day 150
 
-	# 20:01 - It`s time for Puppy. Why is it now streaming?
+	# 20:01 - It`s time for Puppy. Why is it not streaming?
     Import-Module "$ModulesPath\SystemHelper" -RequiredVersion 1.0.0.5 -PassThru -Force
 	Import-Module "$ModulesPath\SoftwareHelper" -RequiredVersion 1.0.0.7 -PassThru -OutVariable mod -Force
     $null = Set-PSBreakpoint -Script $mod.Path -Line 191
