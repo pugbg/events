@@ -1,52 +1,51 @@
 #ModuleVersion = 1.0.0.4
+
+<#
+   > WHAT'S NEW SINCE 1.0.0.3
+	- [New] Support for both Synchronous and Asynchronous execution (using ParameterSets)
+	- [Improved] The Wait loop now supports WaitTimeout
+
+#>
 function Start-NewProcess
 {
-
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName='Default')]
     param
     (
-		#FilePath
+		# FilePath
 		[Parameter(Mandatory=$true)]
         $FilePath,
 
-		#Arguments
+		# Arguments
 		[Parameter(Mandatory=$false)]
         $Arguments,
 
-		#PassThru
-		[Parameter(Mandatory=$false,ParameterSetName='Default')]
+		# PassThru
+		[Parameter(Mandatory=$false, ParameterSetName='Default')]
 		[switch]$PassThru = $false,
 
-		#Wait
-		[Parameter(Mandatory=$true,ParameterSetName='Wait')]
-		[switch]$Wait = $false,
-
-		#WaitTimeout
-		[Parameter(Mandatory=$false,ParameterSetName='Wait')]
+		# WaitTimeout
+		[Parameter(Mandatory=$false, ParameterSetName='Wait')]
 		[int]$WaitTimeout = 60,
 
-		#ReturnResult
-		[Parameter(Mandatory=$false,ParameterSetName='Wait')]
+		# ReturnResult
+		[Parameter(Mandatory=$false, ParameterSetName='Wait')]
 		[switch]$ReturnResult = $false
     )
 
     process
     {
-		#Create the ProcessStartInfo
+		## Initializing the new process StartInfo object
 		$ProcessStartInfo = [System.Diagnostics.ProcessStartInfo]::new($FilePath)
-		if ($PSBoundParameters.ContainsKey('Arguments'))
-		{
-			$ProcessStartInfo.Arguments = $Arguments
-		}
-		if ($ReturnResult.IsPresent)
-		{
-			$ProcessStartInfo.RedirectStandardOutput = $true
-		}
+		$ProcessStartInfo.RedirectStandardOutput = $true
 		$ProcessStartInfo.RedirectStandardError = $true
         $ProcessStartInfo.UseShellExecute = $false
 		$ProcessStartInfo.CreateNoWindow = $true
-        
-		#Start the process
+   		if ($PSBoundParameters.ContainsKey('Arguments'))
+		{
+			$ProcessStartInfo.Arguments = $Arguments
+		}
+     
+		## Start the process
 		$Process = [System.Diagnostics.Process]::Start($ProcessStartInfo)
 
 		switch ($PSCmdlet.ParameterSetName)
@@ -54,16 +53,19 @@ function Start-NewProcess
 			'Default' {
 				if ($PassThru.IsPresent)
 				{
+					# Write the Process object in the Output Stream
 					$Process
 				}
 			}
 
 			'Wait' {
-				#Wait the process to exit
+				## Start a Timer to monitor the WaitTimeout
 				$Timer = [System.Diagnostics.Stopwatch]::StartNew()
+
+				## Wait for the process to complete
 				while (-not $WaitCompleted)
 				{
-					#Check Process State
+					# Check the process state
 					if ($Process.HasExited)
 					{
 						$WaitCompleted = $true
@@ -71,37 +73,37 @@ function Start-NewProcess
 					}
 					else
 					{
-						#Check if Timeout is reached
+						# Check if a Timeout is reached
 						if ($Timer.Elapsed.TotalSeconds -gt $WaitTimeout)
 						{
 							$Timer.Stop()
 							throw "Timeout of $WaitTimeout reached."
 						}
 
-						Start-Sleep -Seconds 2
+						Start-Sleep -Milliseconds 250
 					}
 				}
 
-				#Check exitcode
+				## Check exitcode
 				if ($Process.exitcode -ne 0)
 				{
-					#Return errorcode + errormessage
-					$errorMsg = "Failed with exitcode $($Process.ExitCode)"
+					# Throw errorcode + errormessage
+					$errorMsg = "The process failed with exitcode $($Process.ExitCode)"
 					$ProcessOutput_Error = $Process.StandardError.ReadToEnd()
 					$ProcessOutput_Standard = $Process.StandardOutput.ReadToEnd()
 					if ($ProcessOutput_Error)
 					{
-						$errorMsg+=". Details: $ProcessOutput_Error"
+						$errorMsg += ". Details: $ProcessOutput_Error"
 					}
 					elseif ($ProcessOutput_Standard)
 					{
-						$errorMsg+=". Details: $ProcessOutput_Standard"
+						$errorMsg += ". Details: $ProcessOutput_Standard"
 					}
-					Write-Error -Message $errorMsg -ErrorAction Stop
+					throw $errorMsg
 				}
 				else
 				{
-					#Return output
+					# Return output
 					if ($ReturnResult.IsPresent)
 					{
 						$Process.StandardOutput.ReadToEnd()
@@ -115,7 +117,7 @@ function Start-NewProcess
 			}
 		}
         
-		#Dispose
+		## Dispose of the process handle      
 		$Process.Dispose()
     }
 
