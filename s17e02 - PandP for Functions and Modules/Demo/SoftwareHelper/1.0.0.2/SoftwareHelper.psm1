@@ -8,22 +8,44 @@ function Get-Software
     param
     (
         #Name
-        [Parameter(Mandatory=$true,ParameterSetName='NoRemoting_Default')]
+        [Parameter(Mandatory=$false,ParameterSetName='NoRemoting_Default')]
         [string]$Name
     )
     
     Begin
     {
-          
+		$RegSearchPaths = @(
+			'HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\*'
+			'HKLM:\Software\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*'
+		)
     }
 
     Process
     {
-    
-    }
-
-    End
-    {
+		#Seach for Software
+		try
+		{
+			if ($PSBoundParameters.ContainsKey('Name'))
+			{
+				$FilterScript = {$_.Displayname -ilike $Name}
+			}
+			else
+			{
+				$FilterScript = {$true}
+			}
+			$RegSearchPaths | foreach { Get-ItemProperty -Path $_ }  | Where-Object -FilterScript $FilterScript | foreach {
+				[pscustomobject]@{
+					Name=$_.DisplayName
+					Version=$_.DisplayVersion
+					Publisher=$_.Publisher
+					InstallDate=$_.InstallDate
+				}
+			}
+		}
+		catch
+		{
+			Write-Error -Message "Search for Software failed. Details $_."
+		}
 
     }
 }

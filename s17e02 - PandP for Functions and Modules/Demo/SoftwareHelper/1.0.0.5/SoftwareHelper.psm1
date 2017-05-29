@@ -1,4 +1,4 @@
-#ModuleVersion = 1.0.0.3
+#ModuleVersion = 1.0.0.5
 #region Private Functions
 
 function Get-Software
@@ -143,6 +143,72 @@ function Install-7Zip
 		finally
 		{
 			$Result
+		}
+    }
+}
+
+function Get-SoftwareUsage
+{
+    [CmdletBinding()]
+    param
+    (
+        #Executable
+        [Parameter(Mandatory=$false,ParameterSetName='NoRemoting_Default')]
+        [string]$Executable,
+
+        #ComputerName
+        [Parameter(Mandatory=$false,ParameterSetName='NoRemoting_Default')]
+        [string]$ComputerName
+    )
+
+    Process
+    {
+		#Retrieve Events
+		try
+		{
+			Write-Verbose "Retrieve Events starting"
+
+			$GetWinEvent_Params = @{
+				FilterHashtable=@{Logname='System';Id=4688}
+			}
+			if ($PSBoundParameters.ContainsKey('ComputerName'))
+			{
+				$GetWinEvent_Params.Add('ComputerName',$ComputerName)
+			}
+			$AllEvents = Get-WinEvent @GetWinEvent_Params -ErrorAction Stop			
+      
+			Write-Verbose "Retrieve Events completed"
+		}
+		catch
+		{
+			Write-Error "Retrieve Events failed. Details: $_" -ErrorAction 'Stop'
+		}
+
+		#Filter Events
+		if ($PSBoundParameters.ContainsKey('Executable'))
+		{
+			try
+			{
+				Write-Verbose "Filter Events starting"
+					
+				$AllEvents = $AllEvents | Where-Object -FilterScript {$_.Properties[5].Value -ilike $Executable}
+      
+				Write-Verbose "Filter Events completed"
+			}
+			catch
+			{
+				Write-Error "Filter Events failed. Details: $_" -ErrorAction 'Stop'
+			}
+		}
+
+		#Return Result
+		foreach ($item in $AllEvents)
+		{
+			[pscustomobject]@{
+				TimeStamp=$item.TimeCreated
+				Software=$item.Properties[5].Value
+				User=$item.Properties[1].Value
+			}
 		}
     }
 }
