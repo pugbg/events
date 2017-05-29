@@ -13,6 +13,7 @@ param
 
 process
 {
+	#Get-Module -Name storage -ListAvailable
 	if ($Skip -notcontains 'ChromeInstallation')
 	{
 		Install-Chrome -FilePath "$BinariesPath\ChromeStandaloneSetup64.exe"
