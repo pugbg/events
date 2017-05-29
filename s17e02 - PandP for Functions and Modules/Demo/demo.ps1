@@ -14,13 +14,14 @@ $BinariesPath = ''
 
 #region Day 1
 
-    # 10:00 - I need to automate the ipconfig
+	### Point for us: How to start a process
+
+    # 10:00 - I need to automate the iisreset
     Import-Module "$ModulesPath\SomeModule" -RequiredVersion 1.0.0.1 -PassThru -Force
     Start-NewProcess -FilePath C:\Windows\System32\iisreset.exe
 
     # Outcome:
     # - Life is good, going for a coffee
-
 
     # 17:59 - I want to use the function to ping
 	Start-NewProcess -FilePath C:\Windows\System32\ping.exe -Arguments '127.0.0.1'
@@ -43,6 +44,10 @@ $BinariesPath = ''
     # Outcome:
     # - Exception is not displayed if it is not in the ErrorStream
     
+	# 15:00 - Fixing the "Exception is not displayed if it is not in the ErrorStream"
+	Import-Module "$ModulesPath\SomeModule" -RequiredVersion 1.0.0.3 -PassThru -Force
+	Start-NewProcess -FilePath C:\Windows\System32\ipconfig.exe -Arguments '/alll'
+
 #endregion
 
 #region Day 21
@@ -52,9 +57,12 @@ $BinariesPath = ''
 
     # 17:59 - After short brainstorming I figured what I need:
     # - Ability to execute proccess both in Foreground and Background
-    Import-Module "$ModulesPath\SomeModule" -RequiredVersion 1.0.0.3 -PassThru -Force
+
+	### Point for us: ParameterSet usage for multiple scenarios + Parameter Identification (switch and no switch)
+
+    Import-Module "$ModulesPath\SomeModule" -RequiredVersion 1.0.0.4 -PassThru -Force
     Start-NewProcess -FilePath "$BinariesPath\Chrome.exe" -Arguments ''
-    Start-NewProcess -FilePath "dism" -Arguments '' -Wait 
+    Start-NewProcess -FilePath "dism" -Arguments '' -WaitTimeout 30
 
     # Outcome
     # - Everything works!
@@ -68,6 +76,9 @@ $BinariesPath = ''
 	# - Implement generic error handling
 	# - Add Verbose logging so he can see what it is doing if he wants.
 	# - Rename the module so it is easier to understand the purpose of the commands inside it
+
+	### Point for us: InputValidation + Generic Error handling + Streams
+
     Import-Module "$ModulesPath\SystemHelper" -RequiredVersion 1.0.0.4 -PassThru -Force 
     Start-NewProcess -FilePath "$BinariesPath\Chrome2.exe" -Arguments '' -Wait 9999
 	Start-NewProcess -FilePath "$BinariesPath\Chrome2.exe" -Arguments '' -Wait 60
@@ -79,49 +90,51 @@ $BinariesPath = ''
 
 #endregion
 
-#region Day 23
+#region Day 40
+
+	### Point for us: Module Interdependency + ...
 
     # 10:00 - On the next day, Konstantin came with the proposal to make a universal script 
 	#         to configure the computer as we want it to be. We`ve dicussed it and 
 	#         came with the conclusion that it should support:
 	# - Steps that can be skipped
-	# - Should be robust so it can be rerun in case of failure
+	# - Should support being rerun several times
+	Import-Module "$ModulesPath\SoftwareHelper" -RequiredVersion 1.0.0.5 -PassThru -Force
 	psedit "$ScriptsPath\configure_mypc.ps1"
     & "$ScriptsPath\configure_mypc.ps1" -Verbose
 	& "$ScriptsPath\configure_mypc.ps1" -Skip 'ChromeInstallation' -Verbose
 
 #endregion
 
-#region Day 24
+#region Day 42
 
-    # 10:00 - We are famous, everyone wants our code! So we`ve decided to implement remoting capabilities in it. 
-	#         It should be able to:
-	# - Connect to multiple computers and get the job done
-    Import-Module "$ModulesPath\SystemHelper" -RequiredVersion 1.0.0.5 -PassThru -Force
-	& "$ScriptsPath\configure_mypc.ps1" -ComputerName SOF-SRV01,SOF-SRV02
-	
-#endregion
-
-#region Day 25
+	### Point for us: OutputType + Custom Formatting
 
     # 10:00 - We want to implement the functionality to return the result of the operation
-    Import-Module "$ModulesPath\SystemHelper" -RequiredVersion 1.0.0.5 -PassThru -Force
-	& "$ScriptsPath\configure_mypc.ps1" -ComputerName SOF-SRV01,SOF-SRV02 -PassThru
-	& "$ScriptsPath\configure_mypc.ps1" -ComputerName SOF-SRV01,SOF-SRV02 -PassThru | Where-Object {$_.Status -eq 'Success'}
-
-	
+    Import-Module "$ModulesPath\SoftwareHelper" -RequiredVersion 1.0.0.5 -PassThru -Force
+	& "$ScriptsPath\configure_mypc.ps1" -PassThru
+	& "$ScriptsPath\configure_mypc.ps1" -PassThru | Where-Object {$_.Status -eq 'Success'}
+		
 #endregion
 
-#region Start-NewProcess v 1.0.0.4
+#region Day 43
 
-    # UseCase
-    # - Ability to start new processes
+	### Point for us: Streaming the result thru the Pipeline
+	Get-WinEvent -FilterHashtable @{Logname='System';Id=7036} -MaxEvents 4 | select -First 1
 
-    $ModulesPath = 'C:\Users\gogbg\OneDrive\Learning\Microsoft\Seminars\pugbg\s17e02 - PandP for Functions and Modules\Demo'
-    Import-Module "$ModulesPath\SomeModule" -RequiredVersion 1.0.0.4 -Force
-    Start-NewProcess -FilePath C:\Windows\System32\ipconfig.exe -ArgumentList '/all' -Wait -ReturnResult
+	# 10:00 - I want to see the Chrome Executions
+	Import-Module "$ModulesPath\SoftwareHelper" -RequiredVersion 1.0.0.6 -PassThru -Force
 
-    # Outcome
-    # - Not readable
+
+	# 14:00 - 
+	# - Make it work faster 
+	Import-Module "$ModulesPath\SoftwareHelper" -RequiredVersion 1.0.0.7 -PassThru -Force
+
+	# 17:00 - 
+	# - Make it work even faster 
+	Import-Module "$ModulesPath\SoftwareHelper" -RequiredVersion 1.0.0.8 -PassThru -Force
+
+	# 18:00
+	# - Make it work against remote computers
 
 #endregion

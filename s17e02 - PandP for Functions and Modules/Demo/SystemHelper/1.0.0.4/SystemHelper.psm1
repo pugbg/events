@@ -26,10 +26,6 @@ function Start-NewProcess
 		[Parameter(Mandatory=$false,ParameterSetName='Default')]
 		[switch]$PassThru = $false,
 
-		#Wait
-		[Parameter(Mandatory=$true,ParameterSetName='Wait')]
-		[switch]$Wait = $false,
-
 		#WaitTimeout
 		[Parameter(Mandatory=$false,ParameterSetName='Wait')]
 		[ValidateRange(1,3600)]
