@@ -1,9 +1,8 @@
-#ModuleVersion = 1.0.0.2
+#ModuleVersion = 1.0.0.3
 
 <#
-   > WHAT'S NEW SINCE 1.0.0.1
-	- [New]	The function now runs synchronously
-	- [New] An exception is thrown if the process exitcode is not zero
+   > WHAT'S NEW SINCE 1.0.0.2
+	- [Improved] If the stdErr stream is empty, the exception contains the stdOut stream data
 
 #>
 
@@ -41,11 +40,15 @@ function Start-NewProcess
 			# Throw errorcode + errormessage
 			$errorMsg = "The process failed with exitcode $($Process.ExitCode)"
 			$ProcessOutput_Error = $Process.StandardError.ReadToEnd()
+			$ProcessOutput_Standard = $Process.StandardOutput.ReadToEnd()
 			if ($ProcessOutput_Error)
 			{
 				$errorMsg += ". Details: $ProcessOutput_Error"
 			}
-
+			elseif ($ProcessOutput_Standard)
+			{
+				$errorMsg += ". Details: $ProcessOutput_Standard"
+			}
 			Write-Error -Message $errorMsg -ErrorAction Stop
 		}
 		else

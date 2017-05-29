@@ -7,6 +7,7 @@ diskpart
 #region Demo Configuration
 
 $ModulesPath = 'C:\Users\givanoad08\Source\Repos\events\s17e02 - PandP for Functions and Modules\Demo'
+# $ModulesPath = 'D:\GitHub\PUGbg\Events\s17e02 - PandP for Functions and Modules\Demo'
 $ScriptsPath = ''
 $BinariesPath = ''
 
@@ -79,7 +80,7 @@ $BinariesPath = ''
 
 	### Point for us: InputValidation + Generic Error handling + Streams
 
-    Import-Module "$ModulesPath\SystemHelper" -RequiredVersion 1.0.0.4 -PassThru -Force 
+    Import-Module "$ModulesPath\SystemHelper" -RequiredVersion 1.0.0.5 -PassThru -Force 
     Start-NewProcess -FilePath "$BinariesPath\Chrome2.exe" -Arguments '' -Wait 9999
 	Start-NewProcess -FilePath "$BinariesPath\Chrome2.exe" -Arguments '' -Wait 60
 	Start-NewProcess -FilePath "$BinariesPath\Chrome.exe" -Arguments '' -Wait 60
