@@ -60,8 +60,9 @@ function Install-Chrome
     [CmdletBinding()]
     param
     (
+		#FilePath
 		[Parameter(Mandatory=$true)]
-        $BinPath
+        [System.IO.FileInfo]$FilePath
     )
 
     process
@@ -77,7 +78,7 @@ function Install-Chrome
 			}
 			else
 			{
-				Start-NewProcess -FilePath '' -ReturnResult -ErrorAction Stop
+				Start-NewProcess -FilePath $FilePath.FullName -ReturnResult -ErrorAction Stop
 			}
 
 			Write-Verbose 'Chrome Installation completed'
@@ -95,8 +96,9 @@ function Install-7Zip
     [CmdletBinding()]
     param
     (
+		#FilePath
 		[Parameter(Mandatory=$true)]
-        $BinPath
+        [System.IO.FileInfo]$FilePath
     )
 
     process
@@ -112,7 +114,7 @@ function Install-7Zip
 			}
 			else
 			{
-				Start-NewProcess -FilePath '' -ReturnResult -ErrorAction Stop
+				Start-NewProcess -FilePath $FilePath.FullName -ReturnResult -ErrorAction Stop
 			}
 
 			Write-Verbose '7Zip Installation completed'

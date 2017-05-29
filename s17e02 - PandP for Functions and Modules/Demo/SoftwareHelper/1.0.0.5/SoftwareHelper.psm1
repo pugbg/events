@@ -61,11 +61,13 @@ function Install-Chrome
 	[OutputType([SoftwareEntity])]
     param
     (
+		#FilePath
 		[Parameter(Mandatory=$true)]
-        $BinPath,
+        [System.IO.FileInfo]$FilePath,
 
+		#PassThru
 		[Parameter(Mandatory=$true)]
-        $PassThru
+        [switch]$PassThru
     )
 
     process
@@ -84,7 +86,7 @@ function Install-Chrome
 			}
 			else
 			{
-				Start-NewProcess -FilePath '' -ReturnResult -ErrorAction Stop
+				Start-NewProcess -FilePath $FilePath.FullName -ReturnResult -ErrorAction Stop
 				$Result.Status = 'Installed'
 			}
 
@@ -109,8 +111,13 @@ function Install-7Zip
 	[OutputType([SoftwareEntity])]
     param
     (
+		#FilePath
 		[Parameter(Mandatory=$true)]
-        $BinPath
+        [System.IO.FileInfo]$FilePath,
+
+		#PassThru
+		[Parameter(Mandatory=$true)]
+        [switch]$PassThru
     )
 
     process
@@ -129,7 +136,7 @@ function Install-7Zip
 			}
 			else
 			{
-				Start-NewProcess -FilePath '' -ReturnResult -ErrorAction Stop
+				Start-NewProcess -FilePath $FilePath.FullName -ReturnResult -ErrorAction Stop
 				$Result.Status = 'Installed'
 			}
 
@@ -146,7 +153,6 @@ function Install-7Zip
 		}
     }
 }
-
 function Get-SoftwareUsage
 {
     [CmdletBinding()]

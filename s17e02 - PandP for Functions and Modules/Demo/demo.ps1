@@ -111,11 +111,14 @@ $BinariesPath = ''
 
 	### Point for us: OutputType + Custom Formatting
 
-    # 10:00 - We want to implement the functionality to return the result of the operation
+    # 10:00 - We want the function to return details about the software installation state
     Import-Module "$ModulesPath\SoftwareHelper" -RequiredVersion 1.0.0.2 -PassThru -Force
 	$Chrome = Install-Chrome -BinPath '' -PassThru
+	# Outcome
+	# - Crappy formatting
+	# - Intellisense does not recognise the output
 
-	# 12:00 - We want to implement the functionality to return the result of the operation
+	# 14:00 - Lunch is over. Lets improve the function output
     Import-Module "$ModulesPath\SoftwareHelper" -RequiredVersion 1.0.0.3 -PassThru -Force
 	Install-Chrome -BinPath '' -PassThru
 	Install-Chrome -BinPath '' -PassThru | Where-Object {$_.Status -eq 'Failed'}
@@ -125,21 +128,35 @@ $BinariesPath = ''
 #region Day 43
 
 	### Point for us: Streaming the result thru the Pipeline
-	Get-WinEvent -FilterHashtable @{Logname='System';Id=7036} -MaxEvents 4 | select -First 1
 
-	# 10:00 - I want to see the Chrome Executions
+	# 10:00 - I want to check who is using Chrome both on my computer and remote computers
 	Import-Module "$ModulesPath\SoftwareHelper" -RequiredVersion 1.0.0.4 -PassThru -Force
+	Get-Software -Name *Chrome* -ErrorAction Stop
+	Get-Software -Name *Chrome* -ComputerName 'localhost' -ErrorAction Stop
+	Get-Software -Name *Chrome* -ErrorAction Stop | select -First 1
+	Get-Software -Name *Chrome* -ErrorAction Stop | Where-Object {$_.User -eq 'Administrator'}
+	# Outcome
+	# - The overall command performance is bad, because it is waiting to collect all date before returning it.
 
-
-	# 14:00 - 
-	# - Make it work faster 
+	# 14:00 - I`ve decided to improve the performance
 	Import-Module "$ModulesPath\SoftwareHelper" -RequiredVersion 1.0.0.5 -PassThru -Force
+	Get-Software -Name *Chrome* -ErrorAction Stop
+	Get-Software -Name *Chrome* -ErrorAction Stop | select -First 1
+	Get-Software -Name *Chrome* -ErrorAction Stop | Where-Object {$_.User -eq 'Administrator'}
 
-	# 17:00 - 
-	# - Make it work even faster 
+	# 17:00 - I`ve decided to improve the performance even more by:
+	# - Making the command stream the result as it is retrieved from the provider
 	Import-Module "$ModulesPath\SoftwareHelper" -RequiredVersion 1.0.0.6 -PassThru -Force
+	Get-Software -Name *Chrome* -ErrorAction Stop
+	Get-Software -Name *Chrome* -ErrorAction Stop | select -First 1
+	Get-Software -Name *Chrome* -ErrorAction Stop | Where-Object {$_.User -eq 'Administrator'}
 
-	# 18:00
-	# - Make it work against remote computers
+
+
+#endregion
+
+#region Day 150
+
+	#Q&A
 
 #endregion

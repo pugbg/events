@@ -60,11 +60,13 @@ function Install-Chrome
     [CmdletBinding()]
     param
     (
+		#FilePath
 		[Parameter(Mandatory=$true)]
-        $BinPath,
+        [System.IO.FileInfo]$FilePath,
 
+		#PassThru
 		[Parameter(Mandatory=$true)]
-        $PassThru
+        [switch]$PassThru
     )
 
     process
@@ -75,6 +77,7 @@ function Install-Chrome
 
 			$Result = [pscustomobject]@{
 				Name='Chrome'
+				Executable=$FilePath.FullName
 				TimeStamp=(Get-Date)
 				Status='Unknown'
 			}
@@ -87,7 +90,7 @@ function Install-Chrome
 			}
 			else
 			{
-				Start-NewProcess -FilePath '' -ReturnResult -ErrorAction Stop
+				Start-NewProcess -FilePath $FilePath.FullName -Arguments -WaitTimeout 300 -ErrorAction Stop
 				$Result.Status = 'Installed'
 			}
 
@@ -100,7 +103,10 @@ function Install-Chrome
 		}
 		finally
 		{
-			$Result
+			if ($PassThru.IsPresent)
+			{
+				$Result
+			}
 		}
     }
 }
@@ -111,8 +117,13 @@ function Install-7Zip
     [CmdletBinding()]
     param
     (
+		#FilePath
 		[Parameter(Mandatory=$true)]
-        $BinPath
+        [System.IO.FileInfo]$FilePath,
+
+		#PassThru
+		[Parameter(Mandatory=$true)]
+        [switch]$PassThru
     )
 
     process
@@ -123,6 +134,7 @@ function Install-7Zip
 
 			$Result = [pscustomobject]@{
 				Name='Chrome'
+				Executable=$FilePath
 				TimeStamp=(Get-Date)
 				Status='Unknown'
 			}
@@ -148,7 +160,10 @@ function Install-7Zip
 		}
 		finally
 		{
-			$Result
+			if ($PassThru.IsPresent)
+			{
+				$Result
+			}
 		}
     }
 }
