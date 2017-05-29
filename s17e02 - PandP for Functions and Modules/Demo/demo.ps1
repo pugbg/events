@@ -96,10 +96,10 @@ $BinariesPath = ''
 
     # 10:00 - On the next day, Konstantin came with the proposal to make a universal script 
 	#         to configure the computer as we want it to be. We`ve dicussed it and 
-	#         came with the conclusion that it should support:
-	# - Steps that can be skipped
+	#         came with the conclusion that:
+	# - We should make SoftwareHelper module that is responsible for each software installation and detection method
 	# - Should support being rerun several times
-	Import-Module "$ModulesPath\SoftwareHelper" -RequiredVersion 1.0.0.5 -PassThru -Force
+	Import-Module "$ModulesPath\SoftwareHelper" -RequiredVersion 1.0.0.1 -PassThru -Force
 	psedit "$ScriptsPath\configure_mypc.ps1"
     & "$ScriptsPath\configure_mypc.ps1" -Verbose
 	& "$ScriptsPath\configure_mypc.ps1" -Skip 'ChromeInstallation' -Verbose
@@ -111,9 +111,13 @@ $BinariesPath = ''
 	### Point for us: OutputType + Custom Formatting
 
     # 10:00 - We want to implement the functionality to return the result of the operation
-    Import-Module "$ModulesPath\SoftwareHelper" -RequiredVersion 1.0.0.5 -PassThru -Force
-	& "$ScriptsPath\configure_mypc.ps1" -PassThru
-	& "$ScriptsPath\configure_mypc.ps1" -PassThru | Where-Object {$_.Status -eq 'Success'}
+    Import-Module "$ModulesPath\SoftwareHelper" -RequiredVersion 1.0.0.2 -PassThru -Force
+	$Chrome = Install-Chrome -BinPath '' -PassThru
+
+	# 12:00 - We want to implement the functionality to return the result of the operation
+    Import-Module "$ModulesPath\SoftwareHelper" -RequiredVersion 1.0.0.3 -PassThru -Force
+	Install-Chrome -BinPath '' -PassThru
+	Install-Chrome -BinPath '' -PassThru | Where-Object {$_.Status -eq 'Failed'}
 		
 #endregion
 
@@ -123,7 +127,7 @@ $BinariesPath = ''
 	Get-WinEvent -FilterHashtable @{Logname='System';Id=7036} -MaxEvents 4 | select -First 1
 
 	# 10:00 - I want to see the Chrome Executions
-	Import-Module "$ModulesPath\SoftwareHelper" -RequiredVersion 1.0.0.6 -PassThru -Force
+	Import-Module "$ModulesPath\SoftwareHelper" -RequiredVersion 1.0.0.4 -PassThru -Force
 
 
 	# 14:00 - 

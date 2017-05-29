@@ -1,9 +1,9 @@
-#requires -modules @{ModuleName='SystemHelper';ModuleVersion='1.0.0.4'}
+#requires -modules @{ModuleName='SoftwareHelper';ModuleVersion='1.0.0.1'}
 [CmdletBinding()]
 param
 (
 	[Parameter(Mandatory=$false)]
-	[ValidateSet('ChromeInstallation','NotepadPPInstallation','FileAssociationsConfiguration')]
+	[ValidateSet('ChromeInstallation','7ZipInstallation','FileAssociationsConfiguration')]
 	[string[]]$Skip
 )
 
@@ -11,27 +11,11 @@ process
 {
 	if ($Skip -notcontains 'ChromeInstallation')
 	{
-		try
-		{
-			Write-Verbose 'ChromeInstallation starting'
-
-			$ChromeInstalled = #check if chrome is installed
-			if ($ChromeInstalled)
-			{
-				Write-Verbose 'ChromeInstallation skipped, already installed'
-			}
-			else
-			{
-				Start-NewProcess -FilePath '' -ReturnResult -ErrorAction Stop
-			}
-
-			Write-Verbose 'ChromeInstallation completed'
-		}
-		catch
-		{
-			Write-Error 'ChromeInstallation started' -ErrorAction Stop
-		}
+		Install-Chrome -BinPath
 	}
 
-	#Copy it for every step
+	if ($Skip -notcontains '7ZipInstallation')
+	{
+		Install-7Zip -BinPath
+	}
 }

@@ -3,11 +3,14 @@
     "",
     "\\s17e02 - PandP for Functions and Modules",
     "\\s17e02 - PandP for Functions and Modules\\Demo",
+    "\\s17e02 - PandP for Functions and Modules\\Demo\\SoftwareHelper",
+    "\\s17e02 - PandP for Functions and Modules\\Demo\\SoftwareHelper\\1.0.0.1",
     "\\s17e02 - PandP for Functions and Modules\\Demo\\SomeModule",
     "\\s17e02 - PandP for Functions and Modules\\Demo\\SomeModule\\1.0.0.1",
     "\\s17e02 - PandP for Functions and Modules\\Demo\\SomeModule\\1.0.0.2",
-    "\\s17e02 - PandP for Functions and Modules\\Demo\\SomeModule\\1.0.0.3"
+    "\\s17e02 - PandP for Functions and Modules\\Demo\\SomeModule\\1.0.0.4",
+    "\\s17e02 - PandP for Functions and Modules\\Demo\\SystemHelper\\1.0.0.4"
   ],
-  "SelectedNode": "\\s17e02 - PandP for Functions and Modules\\Demo\\demo.ps1",
+  "SelectedNode": "\\s17e02 - PandP for Functions and Modules\\Demo\\SoftwareHelper\\1.0.0.1\\SoftwareHelper.psm1",
   "PreviewInSolutionExplorer": false
 }
