@@ -133,11 +133,11 @@ $BinariesPath = ''
 
 	# 14:00 - 
 	# - Make it work faster 
-	Import-Module "$ModulesPath\SoftwareHelper" -RequiredVersion 1.0.0.7 -PassThru -Force
+	Import-Module "$ModulesPath\SoftwareHelper" -RequiredVersion 1.0.0.5 -PassThru -Force
 
 	# 17:00 - 
 	# - Make it work even faster 
-	Import-Module "$ModulesPath\SoftwareHelper" -RequiredVersion 1.0.0.8 -PassThru -Force
+	Import-Module "$ModulesPath\SoftwareHelper" -RequiredVersion 1.0.0.6 -PassThru -Force
 
 	# 18:00
 	# - Make it work against remote computers

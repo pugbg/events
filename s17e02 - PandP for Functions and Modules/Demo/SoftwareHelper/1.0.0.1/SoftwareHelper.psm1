@@ -83,7 +83,7 @@ function Install-7Zip
 		{
 			Write-Verbose '7Zip Installation starting'
 
-			$ChromeInstalled = Get-Software -Name '*notepad*'
+			$ChromeInstalled = Get-Software -Name '*7zip*'
 			if ($ChromeInstalled)
 			{
 				Write-Verbose '7Zip Installation skipped, already installed'
