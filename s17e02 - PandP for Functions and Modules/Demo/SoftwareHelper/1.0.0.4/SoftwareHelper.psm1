@@ -202,7 +202,7 @@ function Get-SoftwareUsage
 			{
 				$GetWinEvent_Params['FilterHashtable'].Add('StartTime',$StartTime)
 			}
-			$AllEvents = Get-WinEvent @GetWinEvent_Params -ErrorAction Stop			
+			$AllEvents = Get-WinEvent @GetWinEvent_Params -ErrorAction Stop
       
 			Write-Verbose "Retrieve Events completed"
 		}
@@ -235,7 +235,7 @@ function Get-SoftwareUsage
 			$ItemResult = [pscustomobject]@{
 				TimeStamp=$item.TimeCreated
 				Software=$item.Properties[5].Value
-				User=$item.Properties[1].Value
+				User=(Get-ADUser -Identity $item.Properties[1].Value | select -ExpandProperty userprincipalname)
 			}
 			$null = $Result.Add($ItemResult)
 		}

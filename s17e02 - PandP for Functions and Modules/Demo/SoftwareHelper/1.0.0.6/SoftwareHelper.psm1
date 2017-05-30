@@ -217,7 +217,7 @@ function Get-SoftwareUsage
 				[pscustomobject]@{
 					Executable = $_.Properties[5].Value
 					TimeStamp = $_.TimeCreated
-					User=$_.Properties[1].Value
+					User=(Get-ADUser -Identity $item.Properties[1].Value | select -ExpandProperty userprincipalname)
 				}
 
 			}

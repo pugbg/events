@@ -217,7 +217,7 @@ function Get-SoftwareUsage
 				$Result = [SoftwareAuditEntry]::new()
 				$Result.Executable = $_.Properties[5].Value
 				$Result.TimeStamp = $_.TimeCreated
-				$Result.User=$_.Properties[1].Value
+				$Result.User=(Get-ADUser -Identity $item.Properties[1].Value | select -ExpandProperty userprincipalname)
 				$Result
 			}
       
