@@ -1,11 +1,14 @@
 #region Agenda
 
-	# - Day1 -> Working with executables
+	# - Day1  -> PS Module basics
+	#			 Working with executables
 	#
-	# - Day2 -> #TODO
+	# - Day2  -> Multiple PS Module versions support
+	#			 Basic error validation
 	#
-	# - Day21 -> ParameterSets, 
-	#            Universal Parameter Identification inside the function
+	# - Day21 -> ParameterSets
+	#            Parameter Handling inside the function
+	#			 Async call handling
 	#
 	# - Day22 -> Parameter Validation
 	#            Generic Error handling
@@ -20,6 +23,7 @@
 	#            Authoring experience improvements
 	#
 	# - Day43 -> Output streaming
+	#			 Splatting
 
 #endregion
 
@@ -106,7 +110,7 @@
 
 #region Day 22
 
-    # 10:00 - On the next day, Konstantin saw what I`ve did, and wanted to use my module, so I`ve decided to:
+    # 10:00 - On the next day, a colleague saw what I`ve did, and wanted to use my module, so I`ve decided to:
     # - Implement validation of the input parameters
 	# - Implement generic error handling
 	# - Add Verbose logging so he can see what it is doing if he wants.
@@ -207,7 +211,7 @@
 
 #region Day 150
 
-	# 20:01 - It`s time for Puppy. Why is it not streaming?
+	# 20:01 - It`s time for Puppy. Why is it not streaming the output?
     Import-Module "$ModulesPath\SystemHelper" -RequiredVersion 1.0.0.5 -PassThru -Force
 	Import-Module "$ModulesPath\SoftwareHelper" -RequiredVersion 1.0.0.7 -PassThru -OutVariable mod -Force
     $null = Set-PSBreakpoint -Script $mod.Path -Line 191

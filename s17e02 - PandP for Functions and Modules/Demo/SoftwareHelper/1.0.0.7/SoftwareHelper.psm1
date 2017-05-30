@@ -213,7 +213,7 @@ function Get-SoftwareUsage
 			{
 				$GetWinEvent_Params['FilterHashtable'].Add('StartTime',$StartTime)
 			}
-			Get-WinEvent @GetWinEvent_Params | Where-Object -FilterScript $FilterScript | ForEach-Object {
+			Get-WinEvent @GetWinEvent_Params -ErrorAction Stop | Where-Object -FilterScript $FilterScript | ForEach-Object {
 				$Result = [SoftwareAuditEntry]::new()
 				$Result.Executable = $_.Properties[5].Value
 				$Result.TimeStamp = $_.TimeCreated
