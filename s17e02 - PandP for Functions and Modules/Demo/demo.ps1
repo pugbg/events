@@ -35,7 +35,7 @@
 	#			 Splatting
 
 #endregion
-
+	
 #region A long time ago
 
 	# We need universal helper function for process execution to rule them all. 
@@ -53,13 +53,12 @@
 
 #endregion
 
-#region Day 1
+#region Day 1  -> PS Module basics, Working with executables
 
     # 14:00 - I need to automate the iisreset
     Import-Module "$ModulesPath\SomeModule" -RequiredVersion 1.0.0.1 -PassThru -Force -OutVariable mod
 	psedit (Join-Path -Path $mod.ModuleBase -ChildPath 'SomeModule.psm1')
 	psedit (Join-Path -Path $mod.ModuleBase -ChildPath 'SomeModule.psd1')
-	$null = Set-PSBreakpoint -Script $mod.Path -Line 16
 
     Start-NewProcess -FilePath C:\Windows\System32\iisreset.exe
     # Outcome:
@@ -75,7 +74,7 @@
 
 #endregion
 
-#region Day 2
+#region Day 2  -> Multiple PS Module versions support, Basic error validation
 
     # 9:47 - After a short nap and a morning shower I decided to fix the function
     Import-Module "$ModulesPath\SomeModule" -RequiredVersion 1.0.0.2 -PassThru -Force -OutVariable mod
@@ -98,7 +97,7 @@
 
 #endregion
 
-#region Day 20
+#region Day 20 -> ParameterSets, Parameter Handling inside the function, Async call handling
 
     # 17:00 - New corporate policy arrived. It uninstalls Chrome and 7zip.
     #         I decided to engineer-around it.
@@ -114,13 +113,13 @@
     Start-NewProcess -FilePath C:\Windows\System32\ping.exe -Arguments '127.0.0.1' -ReturnResult
 
     Start-NewProcess -FilePath "$BinariesPath\ChromeStandaloneSetup64.exe" -Arguments '/silent /install' -WaitTimeout 3600
-    Start-NewProcess -FilePath "msiexec.exe" -Arguments "/i `"$BinariesPath\7z920-x64.msi`" ALLUSERS=1 /qb! /norestart TRANSFORMS=`"$BinariesPath\assoc.mst`"" -WaitTimeout 3600
+    Start-NewProcess -FilePath "C:\Windows\System32\msiexec.exe" -Arguments "/i `"$BinariesPath\7z920-x64.msi`" ALLUSERS=1 /qb! /norestart TRANSFORMS=`"$BinariesPath\assoc.mst`"" -WaitTimeout 3600
     # Outcome
     # - Everything works!
 
 #endregion
 
-#region Day 23
+#region Day 23 -> Parameter Validation, Generic Error handling, Implementing different Output types
 
     # 10:00 - A colleague saw what I`ve done, and wanted to use my module, so I decided to:
 	# - Rename the module so it is easier to understand the purpose of the commands inside it
@@ -129,16 +128,15 @@
 	# - Add Verbose logging so anyone can see what the code is doing.
     Import-Module "$ModulesPath\SystemHelper" -RequiredVersion 1.0.0.5 -PassThru -Force -OutVariable mod
 	psedit (Join-Path -Path $mod.ModuleBase -ChildPath 'SystemHelper.psm1')
-	$null = Set-PSBreakpoint -Script $mod.Path -Line 60
 
     Start-NewProcess -FilePath "$BinariesPath\ChromeStandaloneSetup64.exe" -Arguments '/silent /install' -WaitTimeout 9999
     Start-NewProcess -FilePath "$BinariesPath\ChromeStandaloneSetup65.exe" -Arguments '/silent /install' -WaitTimeout 9999
     Start-NewProcess -FilePath "$BinariesPath\ChromeStandaloneSetup64.exe" -Arguments '/silent /install' -WaitTimeout 360
-    Start-NewProcess -FilePath "msiexec.exe" -Arguments "/i $BinariesPath\7z920-x64.msi ALLUSERS=1 /qb! /norestart TRANSFORMS=$BinariesPath\assoc.mst" -WaitTimeout 120 -Verbose
+    Start-NewProcess -FilePath "C:\Windows\System32\msiexec.exe" -Arguments "/i `"$BinariesPath\7z920-x64.msi`" ALLUSERS=1 /qb! /norestart TRANSFORMS=`"$BinariesPath\assoc.mst`"" -WaitTimeout 120 -Verbose
 
 #endregion
 
-#region Day 40
+#region Day 40 -> Module Interdependency, Private Functions, Error-prone logical operations, PrefferenceVariables propagation
 
     # 10:00 - A collegue came with the proposal to make a universal script 
 	#         that configures the computer as we want it to be. We dicussed it and 
@@ -147,8 +145,6 @@
 	# - Should support being rerun several times
     Import-Module "$ModulesPath\SystemHelper" -RequiredVersion 1.0.0.5 -PassThru -Force
 	Import-Module "$ModulesPath\SoftwareHelper" -RequiredVersion 1.0.0.1 -PassThru -Force -OutVariable mod
-	$null = Set-PSBreakpoint -Script $mod.Path -Line 71,111
-	psedit (Join-Path -Path $mod.ModuleBase -ChildPath 'SystemHelper.psd1')
 	psedit "$ModulesPath\configure_mypc.ps1"
 
     & "$ModulesPath\configure_mypc.ps1" -BinariesPath $BinariesPath -Verbose
@@ -157,13 +153,11 @@
 
 #endregion
 
-#region Day 42
+#region Day 42 -> Output formatting, Authoring experience improvements
 
     # 10:00 - We want the function to return details about the software installation state
     Import-Module "$ModulesPath\SystemHelper" -RequiredVersion 1.0.0.5 -PassThru -Force
     Import-Module "$ModulesPath\SoftwareHelper" -RequiredVersion 1.0.0.2 -PassThru -Force -OutVariable mod
-	$null = Set-PSBreakpoint -Script $mod.Path -Line 75
-	psedit (Join-Path -Path $mod.ModuleBase -ChildPath 'SoftwareHelper.psd1')
 
 	Install-Chrome -FilePath "$BinariesPath\ChromeStandaloneSetup64.exe" -PassThru
     Install-Chrome -FilePath "$BinariesPath\ChromeStandaloneSetup64.exe" -PassThru | Where-Object {$_.Status -eq 'Failed'}
@@ -174,7 +168,6 @@
 	# 14:00 - Lunch is over. Lets improve the function output
     Import-Module "$ModulesPath\SystemHelper" -RequiredVersion 1.0.0.5 -PassThru -Force
     Import-Module "$ModulesPath\SoftwareHelper" -RequiredVersion 1.0.0.3 -PassThru -Force -OutVariable mod
-	$null = Set-PSBreakpoint -Script $mod.Path -Line 76
 	psedit (Join-Path -Path $mod.ModuleBase -ChildPath 'SoftwareHelper.psd1')
 	psedit (Join-Path -Path $mod.ModuleBase -ChildPath 'types\softwarehelper.format.ps1xml')
 
@@ -183,13 +176,12 @@
 		
 #endregion
 
-#region Day 43
+#region Day 43 -> Output streaming, Splatting
 
 	# 10:00 - I want to check who is using Chrome both on my computer and remote computers
     Import-Module "$ModulesPath\SystemHelper" -RequiredVersion 1.0.0.5 -PassThru -Force
 	Import-Module "$ModulesPath\SoftwareHelper" -RequiredVersion 1.0.0.4 -PassThru -OutVariable mod -Force
-    $null = Set-PSBreakpoint -Script $mod.Path -Line 191
-	psedit (Join-Path -Path $mod.ModuleBase -ChildPath 'SoftwareHelper.psd1')
+    $null = Set-PSBreakpoint -Script $mod.Path -Line 223
 
 	Get-SoftwareUsage -Executable *Chrome.exe -StartTime (get-date).AddHours(-5) | ft
 	Get-SoftwareUsage -Executable *Chrome.exe -StartTime (get-date).AddHours(-5) | select -First 1
@@ -201,8 +193,6 @@
 	# 14:00 - I`ve decided to improve the performance
     Import-Module "$ModulesPath\SystemHelper" -RequiredVersion 1.0.0.5 -PassThru -Force
 	Import-Module "$ModulesPath\SoftwareHelper" -RequiredVersion 1.0.0.5 -PassThru -OutVariable mod -Force
-    $null = Set-PSBreakpoint -Script $mod.Path -Line 191
-	psedit (Join-Path -Path $mod.ModuleBase -ChildPath 'SoftwareHelper.psd1')
 
 	Get-SoftwareUsage -Executable *Chrome.exe -StartTime (get-date).AddHours(-5) | ft
 	Get-SoftwareUsage -Executable *Chrome.exe -StartTime (get-date).AddHours(-5) | select -First 1
@@ -212,10 +202,8 @@
 	# - Making the command stream the result as it is retrieved from the provider
     Import-Module "$ModulesPath\SystemHelper" -RequiredVersion 1.0.0.5 -PassThru -Force
 	Import-Module "$ModulesPath\SoftwareHelper" -RequiredVersion 1.0.0.6 -PassThru -OutVariable mod -Force
-    $null = Set-PSBreakpoint -Script $mod.Path -Line 191
-	psedit (Join-Path -Path $mod.ModuleBase -ChildPath 'SoftwareHelper.psd1')
 
-	Get-SoftwareUsage -Executable *Chrome.exe -StartTime (get-date).AddHours(-5)
+	Get-SoftwareUsage -Executable *Chrome.exe -StartTime (get-date).AddHours(-5) | ft
 	Get-SoftwareUsage -Executable *Chrome.exe -StartTime (get-date).AddHours(-5) | select -First 1
 	Get-SoftwareUsage -Executable *Chrome.exe -StartTime (get-date).AddHours(-5) | Where-Object {$_.User -eq 'Administrator'}
 
@@ -226,20 +214,18 @@
 	# 20:01 - It`s time for Puppy. Why is it not streaming the output?
     Import-Module "$ModulesPath\SystemHelper" -RequiredVersion 1.0.0.5 -PassThru -Force
 	Import-Module "$ModulesPath\SoftwareHelper" -RequiredVersion 1.0.0.7 -PassThru -OutVariable mod -Force
-    $null = Set-PSBreakpoint -Script $mod.Path -Line 191
 	psedit (Join-Path -Path $mod.ModuleBase -ChildPath 'SoftwareHelper.psd1')
-	psedit (Join-Path -Path $mod.ModuleBase -ChildPath 'types\softwarehelper.format.ps1xml')
+	psedit $mod.Path
 
 	Get-SoftwareUsage -Executable *Chrome.exe -StartTime (get-date).AddHours(-5)
 	Get-SoftwareUsage -Executable *Chrome.exe -StartTime (get-date).AddHours(-5) | select -First 1
-	Get-SoftwareUsage -Executable *Chrome.exe -StartTime (get-date).AddHours(-5) | Where-Object {$_.User -eq 'Administrator'}
+	Get-SoftwareUsage -Executable *Chrome.exe -StartTime (get-date).AddHours(-5) | Where-Object {$_.User -eq 'administrator@contoso.local'}
 
 #endregion
 
 #region Demo Configuration
 
-$ModulesPath = 'C:\Users\givanoad08\Source\Repos\events\s17e02 - PandP for Functions and Modules\Demo'
-$ModulesPath = 'D:\GitHub\PUGbg\Events\s17e02 - PandP for Functions and Modules\Demo'
+$ModulesPath = 'C:\git\events\s17e02 - PandP for Functions and Modules\Demo'
 $BinariesPath = "$ModulesPath\SoftwareBinaries"
 
 #endregion

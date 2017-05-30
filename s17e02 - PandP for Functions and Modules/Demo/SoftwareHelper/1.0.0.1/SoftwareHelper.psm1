@@ -67,6 +67,7 @@ function Install-Chrome
 
     process
     {
+		#Chrome Installation
 		try
 		{
 			Write-Verbose 'Chrome Installation starting'
@@ -85,7 +86,7 @@ function Install-Chrome
 		}
 		catch
 		{
-			Write-Error 'Chrome Installation started' -ErrorAction Stop
+			Write-Error "Chrome Installation failed. Details: $_"
 		}
     }
 }
@@ -107,6 +108,7 @@ function Install-7Zip
 
     process
     {
+		#7-Zip Installation
 		try
 		{
 			Write-Verbose '7-Zip Installation starting'
@@ -118,14 +120,14 @@ function Install-7Zip
 			}
 			else
 			{
-				Start-NewProcess -FilePath "msiexec.exe" -Arguments "/i `"$FilePath`" ALLUSERS=1 /qb! /norestart TRANSFORMS=`"$TransformFilePath`"" -WaitTimeout 3600
+				Start-NewProcess -FilePath "C:\Windows\System32\msiexec.exe" -Arguments "/i `"$FilePath`" ALLUSERS=1 /qb! /norestart TRANSFORMS=`"$TransformFilePath`"" -WaitTimeout 3600
 			}
 
 			Write-Verbose '7-Zip Installation completed'
 		}
 		catch
 		{
-			Write-Error '7-Zip Installation started' -ErrorAction Stop
+			Write-Error "7-Zip Installation failed. Details: $_"
 		}
     }
 }

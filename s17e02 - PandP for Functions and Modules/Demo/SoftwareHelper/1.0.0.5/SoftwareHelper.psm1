@@ -72,6 +72,7 @@ function Install-Chrome
 
     process
     {
+		#Chrome Installation
 		try
 		{
 			Write-Verbose 'Chrome Installation starting'
@@ -99,7 +100,7 @@ function Install-Chrome
 		catch
 		{
 			$Result.Status = 'Failed'
-			Write-Error 'Chrome Installation started' -ErrorAction Stop
+			Write-Error "Chrome Installation failed. Details: $_"
 		}
 		finally
 		{
@@ -130,6 +131,7 @@ function Install-7Zip
 
     process
     {
+		#7-Zip Installation
 		try
 		{
 			Write-Verbose '7-Zip Installation starting'
@@ -148,7 +150,7 @@ function Install-7Zip
 			}
 			else
 			{
-				Start-NewProcess -FilePath "msiexec.exe" -Arguments "/i `"$FilePath`" ALLUSERS=1 /qb! /norestart TRANSFORMS=`"$TransformFilePath`"" -WaitTimeout 3600
+				Start-NewProcess -FilePath "C:\Windows\System32\msiexec.exe" -Arguments "/i `"$FilePath`" ALLUSERS=1 /qb! /norestart TRANSFORMS=`"$TransformFilePath`"" -WaitTimeout 3600
 				$Result.Status = 'Installed'
 			}
 
@@ -157,7 +159,7 @@ function Install-7Zip
 		catch
 		{
 			$Result.Status = 'Failed'
-			Write-Error '7-Zip Installation started' -ErrorAction Stop
+			Write-Error "7-Zip Installation failed. Details: $_"
 		}
 		finally
 		{
@@ -234,7 +236,7 @@ function Get-SoftwareUsage
 			[pscustomobject]@{
 				TimeStamp=$item.TimeCreated
 				Software=$item.Properties[5].Value
-				User=(Get-ADUser -Identity $item.Properties[1].Value | select -ExpandProperty userprincipalname)
+				User=(Get-ADUser -Identity $item.Properties[1].Value -Properties mail | select -ExpandProperty mail)
 			}
 		}
     }
