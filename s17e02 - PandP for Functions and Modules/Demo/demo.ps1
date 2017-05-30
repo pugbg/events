@@ -6,11 +6,11 @@
 	# - Day2  -> Multiple PS Module versions support
 	#			 Basic error validation
 	#
-	# - Day21 -> ParameterSets
+	# - Day20 -> ParameterSets
 	#            Parameter Handling inside the function
 	#			 Async call handling
 	#
-	# - Day22 -> Parameter Validation
+	# - Day23 -> Parameter Validation
 	#            Generic Error handling
 	#            Implementing different Output types
 	#
@@ -46,10 +46,11 @@
 
 #region Day 1
 
-    # 10:00 - I need to automate the iisreset
+    # 14:00 - I need to automate the iisreset
     Import-Module "$ModulesPath\SomeModule" -RequiredVersion 1.0.0.1 -PassThru -Force -OutVariable mod
-	$null = Set-PSBreakpoint -Script $mod.Path -Line 16
+	psedit (Join-Path -Path $mod.ModuleBase -ChildPath 'SomeModule.psm1')
 	psedit (Join-Path -Path $mod.ModuleBase -ChildPath 'SomeModule.psd1')
+	$null = Set-PSBreakpoint -Script $mod.Path -Line 16
 
     Start-NewProcess -FilePath C:\Windows\System32\iisreset.exe
     # Outcome:
@@ -69,8 +70,9 @@
 
     # 9:47 - After a short nap and a morning shower I decided to fix the function
     Import-Module "$ModulesPath\SomeModule" -RequiredVersion 1.0.0.2 -PassThru -Force -OutVariable mod
-	$null = Set-PSBreakpoint -Script $mod.Path -Line #TODO
 	psedit (Join-Path -Path $mod.ModuleBase -ChildPath 'SomeModule.psd1')
+	psedit (Join-Path -Path $mod.ModuleBase -ChildPath 'SomeModule.psm1')
+	$null = Set-PSBreakpoint -Script $mod.Path -Line 24
 
     Start-NewProcess -FilePath C:\Windows\System32\ipconfig.exe -Arguments '/alll'
 	Start-NewProcess -FilePath C:\Windows\System32\ping.exe -Arguments '127.0.0.1'
@@ -80,27 +82,28 @@
     
 	# 15:00 - Fixing the "Exception is not displayed if it is not in the ErrorStream"
 	Import-Module "$ModulesPath\SomeModule" -RequiredVersion 1.0.0.3 -PassThru -Force -OutVariable mod
-	$null = Set-PSBreakpoint -Script $mod.Path -Line #TODO
-	psedit (Join-Path -Path $mod.ModuleBase -ChildPath 'SomeModule.psd1')
+	$null = Set-PSBreakpoint -Script $mod.Path -Line 23
+	psedit (Join-Path -Path $mod.ModuleBase -ChildPath 'SomeModule.psm1')
 
 	Start-NewProcess -FilePath C:\Windows\System32\ipconfig.exe -Arguments '/alll'
 
 #endregion
 
-#region Day 21
+#region Day 20
 
-    # 17:00 - New corporate policy arrived. It uninstalls Chrome.
+    # 17:00 - New corporate policy arrived. It uninstalls Chrome and 7zip.
     #         I decided to engineer-around it.
 
     # 17:59 - After short brainstorming I figured what I need:
     # - Ability to execute proccess both in Foreground and Background
     Import-Module "$ModulesPath\SomeModule" -RequiredVersion 1.0.0.4 -PassThru -Force -OutVariable mod
-	$null = Set-PSBreakpoint -Script $mod.Path -Line #TODO
-	psedit (Join-Path -Path $mod.ModuleBase -ChildPath 'SomeModule.psd1')
+	psedit (Join-Path -Path $mod.ModuleBase -ChildPath 'SomeModule.psm1')
+	$null = Set-PSBreakpoint -Script $mod.Path -Line 38
 
     Start-NewProcess -FilePath C:\Windows\System32\ping.exe -Arguments '127.0.0.1'
     Start-NewProcess -FilePath C:\Windows\System32\ping.exe -Arguments '127.0.0.1' -PassThru
     Start-NewProcess -FilePath C:\Windows\System32\ping.exe -Arguments '127.0.0.1' -ReturnResult
+
     Start-NewProcess -FilePath "$BinariesPath\ChromeStandaloneSetup64.exe" -Arguments '/silent /install' -WaitTimeout 3600
     Start-NewProcess -FilePath "msiexec.exe" -Arguments "/i `"$BinariesPath\7z920-x64.msi`" ALLUSERS=1 /qb! /norestart TRANSFORMS=`"$BinariesPath\assoc.mst`"" -WaitTimeout 3600
     # Outcome
@@ -108,16 +111,16 @@
 
 #endregion
 
-#region Day 22
+#region Day 23
 
-    # 10:00 - On the next day, a colleague saw what I`ve did, and wanted to use my module, so I`ve decided to:
+    # 10:00 - A colleague saw what I`ve done, and wanted to use my module, so I decided to:
+	# - Rename the module so it is easier to understand the purpose of the commands inside it
     # - Implement validation of the input parameters
 	# - Implement generic error handling
-	# - Add Verbose logging so he can see what it is doing if he wants.
-	# - Rename the module so it is easier to understand the purpose of the commands inside it
+	# - Add Verbose logging so anyone can see what the code is doing.
     Import-Module "$ModulesPath\SystemHelper" -RequiredVersion 1.0.0.5 -PassThru -Force -OutVariable mod
-	$null = Set-PSBreakpoint -Script $mod.Path -Line #TODO
-	psedit (Join-Path -Path $mod.ModuleBase -ChildPath 'SystemHelper.psd1')
+	psedit (Join-Path -Path $mod.ModuleBase -ChildPath 'SystemHelper.psm1')
+	$null = Set-PSBreakpoint -Script $mod.Path -Line 60
 
     Start-NewProcess -FilePath "$BinariesPath\ChromeStandaloneSetup64.exe" -Arguments '/silent /install' -WaitTimeout 9999
     Start-NewProcess -FilePath "$BinariesPath\ChromeStandaloneSetup65.exe" -Arguments '/silent /install' -WaitTimeout 9999
@@ -128,8 +131,8 @@
 
 #region Day 40
 
-    # 10:00 - On the next day, a collegue came with the proposal to make a universal script 
-	#         to configure the computer as we want it to be. We`ve dicussed it and 
+    # 10:00 - A collegue came with the proposal to make a universal script 
+	#         that configures the computer as we want it to be. We dicussed it and 
 	#         came with the conclusion that:
 	# - We should make SoftwareHelper module that is responsible for software detection and installation
 	# - Should support being rerun several times
@@ -227,7 +230,7 @@
 #region Demo Configuration
 
 $ModulesPath = 'C:\Users\givanoad08\Source\Repos\events\s17e02 - PandP for Functions and Modules\Demo'
-# $ModulesPath = 'D:\GitHub\PUGbg\Events\s17e02 - PandP for Functions and Modules\Demo'
+$ModulesPath = 'D:\GitHub\PUGbg\Events\s17e02 - PandP for Functions and Modules\Demo'
 $BinariesPath = "$ModulesPath\SoftwareBinaries"
 
 #endregion
