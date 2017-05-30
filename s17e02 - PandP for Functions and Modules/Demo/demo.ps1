@@ -1,3 +1,12 @@
+#region About
+
+#    Patterns and Practices for writing 
+#    PowerShell functions and modules
+
+#    Georgi Ivanov and Konstantin Kostov
+
+#endregion
+
 #region Agenda
 
 	# - Day1  -> PS Module basics
